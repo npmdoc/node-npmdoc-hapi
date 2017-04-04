@@ -51,7 +51,7 @@
 
         href="http://hapijs.com"
 
-    >hapi (v16.1.0)</a>
+    >hapi (v16.1.1)</a>
 </h1>
 <h4>HTTP Server framework</h4>
 <div class="apidocSectionDiv"><a
@@ -2313,10 +2313,7 @@ if (this.settings.port === undefined) {
     Domain = Domain || require(&#x27;domain&#x27;);
 
     this.domain = Domain.create();
-    this.domain.on(&#x27;error&#x27;, (err) =&#x3e; {
-
-        return this._onError(err);
-    });
+    this.domain.on(&#x27;error&#x27;, this._onError.bind(this));
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
@@ -3860,19 +3857,19 @@ if (typeof settings === &#x27;string&#x27;) {
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-this.connection.emit({ name: internal ? &#x27;request-internal&#x27; : &#x27;request&#x27;, tags }, update);
+
+internals.Compression.prototype.accept = function (request) {
+
+    const header = request.headers[&#x27;accept-encoding&#x27;];
+    const accept = Accept.encoding(header, this.encodings);
+    if (accept instanceof Error) {
+        request.<span class="apidocCodeKeywordSpan">log</span>([&#x27;accept-encoding&#x27;, &#x27;error&#x27;], { header, error
+: accept });
+        return &#x27;identity&#x27;;
+    }
+
+    return accept;
 };
-
-
-internals.Request.prototype._log = function (tags, data) {
-
-return this.<span class="apidocCodeKeywordSpan">log</span>(tags, data, null, true);
-};
-
-
-internals.Request.prototype.getLog = function (tags, internal) {
-
-Hoek.assert(this.route.settings.log, &#x27;Request logging is disabled&#x27;);
 ...</pre></li>
     </ul>
 
@@ -5199,7 +5196,14 @@ return scope;
     <ul>
     <li>description and source-code<pre class="apidocCodePre">accept = function (request) {
 
-    return Accept.encoding(request.headers[&#x27;accept-encoding&#x27;], this.encodings);
+    const header = request.headers[&#x27;accept-encoding&#x27;];
+    const accept = Accept.encoding(header, this.encodings);
+    if (accept instanceof Error) {
+        request.log([&#x27;accept-encoding&#x27;, &#x27;error&#x27;], { header, error: accept });
+        return &#x27;identity&#x27;;
+    }
+
+    return accept;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 this.info = {
@@ -5214,9 +5218,9 @@ this.info = {
 
 this.info.hostname = this.info.host.split(&#x27;:&#x27;)[0];
 
-// Assigned elsewhere:
+// Listen to request state
 
-this.orig = {};
+this._onEnd = () =&#x3e; {
 ...</pre></li>
     </ul>
 
@@ -5354,21 +5358,21 @@ encoding) + &#x27;&#x22;&#x27;;
     return (request.info.acceptEncoding === &#x27;identity&#x27; ? null : request.info.acceptEncoding);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-Hoek.assert(typeof decoder === &#x27;function&#x27;, `Invalid decoder function for ${encoding}`);
-this._decoders[encoding] = decoder;
+    this._decoders[encoding] = decoder;
 };
 
 
 internals.Compression.prototype.accept = function (request) {
 
-return Accept.<span class="apidocCodeKeywordSpan">encoding</span>(request.headers[&#x27;accept-encoding&#x27;], this.encodings);
+    const header = request.headers[&#x27;accept-encoding&#x27;];
+    const accept = Accept.<span class="apidocCodeKeywordSpan">encoding</span>(header, this.encodings);
+    if (accept instanceof Error) {
+        request.log([&#x27;accept-encoding&#x27;, &#x27;error&#x27;], { header, error: accept });
+        return &#x27;identity&#x27;;
+    }
+
+    return accept;
 };
-
-
-internals.Compression.prototype.encoding = function (response) {
-
-const request = response.request;
-if (!request.connection.settings.compression) {
 ...</pre></li>
     </ul>
 
@@ -7102,10 +7106,7 @@ if (response.isBoom) {
     Domain = Domain || require(&#x27;domain&#x27;);
 
     this.domain = Domain.create();
-    this.domain.on(&#x27;error&#x27;, (err) =&#x3e; {
-
-        return this._onError(err);
-    });
+    this.domain.on(&#x27;error&#x27;, this._onError.bind(this));
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
@@ -7134,23 +7135,7 @@ if (response.isBoom) {
 
     this.logger._log([&#x27;internal&#x27;, &#x27;implementation&#x27;, &#x27;error&#x27;], err);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-}
-
-Domain = Domain || require(&#x27;domain&#x27;);
-
-this.domain = Domain.create();
-this.domain.on(&#x27;error&#x27;, (err) =&#x3e; {
-
-    return this.<span class="apidocCodeKeywordSpan">_onError</span>(err);
-});
-};
-
-
-internals.Protect.prototype._onError = function (err) {
-
-const handler = this._error;
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -8630,21 +8615,21 @@ x27; + length);
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-Hoek.assert(typeof decoder === &#x27;function&#x27;, `Invalid decoder function for ${encoding}`);
-this._decoders[encoding] = decoder;
+    this._decoders[encoding] = decoder;
 };
 
 
 internals.Compression.prototype.accept = function (request) {
 
-return Accept.<span class="apidocCodeKeywordSpan">encoding</span>(request.headers[&#x27;accept-encoding&#x27;], this.encodings);
+    const header = request.headers[&#x27;accept-encoding&#x27;];
+    const accept = Accept.<span class="apidocCodeKeywordSpan">encoding</span>(header, this.encodings);
+    if (accept instanceof Error) {
+        request.log([&#x27;accept-encoding&#x27;, &#x27;error&#x27;], { header, error: accept });
+        return &#x27;identity&#x27;;
+    }
+
+    return accept;
 };
-
-
-internals.Compression.prototype.encoding = function (response) {
-
-const request = response.request;
-if (!request.connection.settings.compression) {
 ...</pre></li>
     </ul>
 
